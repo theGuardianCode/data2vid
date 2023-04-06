@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func encode_frame(data []byte, file_info fs.FileInfo) {
@@ -55,7 +56,7 @@ func write_to_image(data []byte, x int, y int, frame *image.RGBA) (*image.RGBA, 
 	return frame, x, y
 }
 
-func decode_frame(file_name string) string {
+func decode_frame(file_name string) {
 	source, err := os.Open(file_name)
 	if err != nil {
 		panic(err)
@@ -71,5 +72,14 @@ func decode_frame(file_name string) string {
 		bytes = append(bytes, uint8(r), uint8(g), uint8(b))
 	}
 
-	return string(bytes)
+	raw_text := string(bytes)
+	elements := strings.Split(strings.ReplaceAll(raw_text, "\x00", ""), "|")
+
+	file, err := os.Create(elements[0])
+	if err != nil {
+		panic(err)
+	}
+	file.Write([]byte(elements[2]))
+
+	fmt.Printf("Image decoded to file %s", elements[0])
 }

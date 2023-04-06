@@ -2,24 +2,31 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 func main() {
-	// bytes, err := os.ReadFile("test.txt")
+	arguments := os.Args
+	filename := arguments[2]
 
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	if arguments[1] == "encode" {
+		bytes, err := os.ReadFile(filename)
 
-	// file, err := os.Open("test.txt")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	// file_info, _ := file.Stat()
+		file, err := os.Open(filename)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	// encode_frame(bytes, file_info)
-	fmt.Println(decode_frame("frame.png"))
+		file_info, _ := file.Stat()
+
+		encode_frame(bytes, file_info)
+	} else if arguments[1] == "decode" {
+		decode_frame(filename)
+	}
 }
