@@ -9,8 +9,8 @@ import (
 // Examine the result of os.ReadFile on a word doc
 
 func main() {
-	// arguments := os.Args
-	var arguments = [3]string{"a", "decode", "frame.png"}
+	arguments := os.Args
+	// var arguments = [3]string{"a", "decode", "frame.png"}
 
 	if arguments[1] == "encode" {
 		filename := arguments[2]
