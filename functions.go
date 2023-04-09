@@ -73,7 +73,7 @@ func decode_frame(file_name string) {
 	if err != nil {
 		panic(err)
 	}
-	file.Write([]byte(elements[2]))
+	file.Write([]byte(elements[1]))
 
 	fmt.Printf("Image decoded to file %s", elements[0])
 }
