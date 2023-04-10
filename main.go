@@ -5,17 +5,13 @@ import (
 	"os"
 )
 
-// TODO: combine all data first and then convert to image and add placeholders at the end
-// Examine the result of os.ReadFile on a word doc
-
 func main() {
 	arguments := os.Args
 	// var arguments = [3]string{"a", "decode", "frame.png"}
 
 	if arguments[1] == "encode" {
 		filename := arguments[2]
-		bytes, err := os.ReadFile(filename)
-
+		data, err := os.ReadFile(filename)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -29,7 +25,7 @@ func main() {
 
 		file_info, _ := file.Stat()
 
-		encode_frame(bytes, file_info)
+		encode_frame(data, file_info)
 	} else if arguments[1] == "decode" {
 		filename := arguments[2]
 

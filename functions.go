@@ -7,13 +7,14 @@ import (
 	"image/png"
 	"io/fs"
 	"os"
+	"strconv"
 	"strings"
 )
 
 func encode_frame(data []byte, file_info fs.FileInfo) {
 	canvas := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{1920, 1080}})
 
-	combined_data := []byte(file_info.Name() + "|" + string(data))
+	combined_data := []byte(file_info.Name() + "nrsep" + fmt.Sprint(file_info.Size()) + "nrsep" + string(data))
 
 	frame := write_to_image(combined_data, canvas)
 
@@ -60,20 +61,28 @@ func decode_frame(file_name string) {
 
 	source.Close()
 
-	var bytes []byte
-	for i := 0; i < frame.Bounds().Max.X; i++ {
-		r, g, b, _ := frame.At(i, 0).RGBA()
-		bytes = append(bytes, uint8(r), uint8(g), uint8(b))
+	var data []byte
+	for y := 0; y < frame.Bounds().Max.Y; y++ {
+		for x := 0; x < frame.Bounds().Max.X; x++ {
+			r, g, b, _ := frame.At(x, y).RGBA()
+			data = append(data, uint8(r), uint8(g), uint8(b))
+		}
 	}
 
-	raw_text := string(bytes)
-	elements := strings.Split(strings.ReplaceAll(raw_text, "\x00", ""), "|")
+	raw_text := string(data)
+	elements := strings.Split(raw_text, "nrsep")
 
 	file, err := os.Create(elements[0])
 	if err != nil {
 		panic(err)
 	}
-	file.Write([]byte(elements[1]))
+
+	length, _ := strconv.ParseInt(elements[1], 10, 64)
+
+	elements[2] = string(([]byte(elements[2]))[:length])
+
+	file.Write([]byte(elements[2]))
+	file.Close()
 
 	fmt.Printf("Image decoded to file %s", elements[0])
 }
