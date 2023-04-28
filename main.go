@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
 	arguments := os.Args
-	// var arguments = [3]string{"a", "decode", "frame.png"}
+	// var arguments = [3]string{"a", "encode", "archive\\powerpoint.pptx"}
 
 	if arguments[1] == "encode" {
 		filename := arguments[2]
@@ -27,16 +29,44 @@ func main() {
 
 		encode_frame(data, file_info)
 	} else if arguments[1] == "decode" {
-		filename := arguments[2]
+		directory := arguments[2]
 
-		_, err := os.Open(filename)
+		frames, _ := os.ReadDir(directory)
 
-		if os.IsNotExist(err) {
-			fmt.Printf("%s does not exist", filename)
-			return
+		var data [][]byte
+		for i := 0; i < len(frames); i++ {
+			path := ".\\" + directory + "\\" + frames[i].Name()
+			_, err := os.Open(path)
+
+			if os.IsNotExist(err) {
+				fmt.Printf("%s does not exist", path)
+				return
+			}
+			data = append(data, decode_frame(path))
 		}
 
-		decode_frame(filename)
+		var raw_text string
+		if len(frames) > 1 {
+			raw_text = string(data[0]) + string(data[1])
+		} else {
+			raw_text = string(data[0])
+		}
+
+		elements := strings.Split(raw_text, "nrsep")
+
+		file, err := os.Create(elements[0])
+		if err != nil {
+			panic(err)
+		}
+
+		length, _ := strconv.ParseInt(elements[1], 10, 64)
+
+		elements[2] = string(([]byte(elements[2]))[:length])
+
+		file.Write([]byte(elements[2]))
+		file.Close()
+
+		fmt.Printf("Image decoded to file %s", elements[0])
 	} else {
 		fmt.Printf("%s is not a valid argument. Should be encode or decode.\n", arguments[1])
 		return
